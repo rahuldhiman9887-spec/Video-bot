@@ -1,32 +1,26 @@
 import os
-import asyncio
-from pyrogram import Client, filters
+from telegram import Update
+from telegram.ext import ApplicationBuilder, ContextTypes, CommandHandler, MessageHandler, filters
 
-API_ID = int(os.getenv("API_ID", "0"))
-API_HASH = os.getenv("API_HASH", "")
+# Render ke Environment Variables se token uthayega
 BOT_TOKEN = os.getenv("BOT_TOKEN", "")
 
-app = Client(
-    "video_downloader_bot",
-    api_id=API_ID,
-    api_hash=API_HASH,
-    bot_token=BOT_TOKEN
-)
+async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    await update.message.reply_text("👋 Hello! Main aapka Video Downloader Bot hoon. Mujhe link bhejiye.")
 
-@app.on_message(filters.command("start"))
-async def start_command(client, message):
-    await message.reply_text("👋 Hello! Main aapka Video Downloader Bot hoon.")
+async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    url = update.message.text
+    await update.message.reply_text(f"🔍 Link mil gaya:\n`{url}`")
 
-@app.on_message(filters.text & ~filters.command("start"))
-async def handle_link(client, message):
-    url = message.text
-    await message.reply_text(f"🔍 Link mil gaya:\n`{url}`")
+if __name__ == '__main__':
+    # Bot application build karna
+    application = ApplicationBuilder().token(BOT_TOKEN).build()
 
-# New safe runner for Python newest versions
-async def main():
-    await app.start()
+    # Commands aur Messages ke handlers add karna
+    application.add_handler(CommandHandler('start', start))
+    application.add_handler(MessageHandler(filters.TEXT & (~filters.COMMAND), handle_message))
+
     print("Bot successfully start ho gaya hai...")
-    await asyncio.Event().wait()
-
-if __name__ == "__main__":
-    asyncio.run(main())
+    
+    # Bot ko run karna
+    application.run_polling()
