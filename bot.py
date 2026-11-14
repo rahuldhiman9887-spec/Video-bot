@@ -1,4 +1,5 @@
 import os
+import asyncio
 from pyrogram import Client, filters
 
 API_ID = int(os.getenv("API_ID", "0"))
@@ -21,4 +22,11 @@ async def handle_link(client, message):
     url = message.text
     await message.reply_text(f"🔍 Link mil gaya:\n`{url}`")
 
-app.run()
+# New safe runner for Python newest versions
+async def main():
+    await app.start()
+    print("Bot successfully start ho gaya hai...")
+    await asyncio.Event().wait()
+
+if __name__ == "__main__":
+    asyncio.run(main())
